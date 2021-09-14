@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@setion('content')
+@section('content')
     <div class="container">
     <table class="table">
         <thead>
@@ -25,6 +25,7 @@
                     </form>
                 </td>
             </tr>
+        @endforeach
         </tbody>
     </table>
     </div>
