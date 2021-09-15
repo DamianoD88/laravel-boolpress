@@ -27,7 +27,7 @@ class PostController extends Controller
      */
     public function create()
     {
-        //
+        return view('admin.posts.create');
     }
 
     /**
@@ -37,8 +37,20 @@ class PostController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
-    {
-        //
+    {   
+        //prendere i dati
+        $data = $request->all();
+
+        //creare la nuova istanza con dati presi dalla request
+        $new_post = new Post();
+        $new_post->slug = Str::slug();
+        $new_post->fill($data);
+
+        // e poi salvare i dati
+        $new_post->save();
+
+        return redirect()->route('admin.posts.index');
+
     }
 
     /**
@@ -47,9 +59,9 @@ class PostController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show(Post $post)
     {
-        //
+        return view('admin.posts.show', compact('post'));
     }
 
     /**
