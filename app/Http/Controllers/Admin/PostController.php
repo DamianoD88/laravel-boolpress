@@ -43,7 +43,7 @@ class PostController extends Controller
 
         //creare la nuova istanza con dati presi dalla request
         $new_post = new Post();
-        $new_post->slug = Str::slug();
+        $new_post->slug = Str::slug($data['title'], '-');
         $new_post->fill($data);
 
         // e poi salvare i dati
