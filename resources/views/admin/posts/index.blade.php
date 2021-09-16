@@ -5,7 +5,7 @@
     <table class="table">
         <thead>
             <tr>
-                <th scope="col">#</th>
+                <th scope="col">Codice</th>
                 <th scope="col">Titolo</th>
                 <th scope="col">Azioni</th>
             </tr>
@@ -13,7 +13,7 @@
         <tbody>
         @foreach($posts as $post)
             <tr>
-                <th scope="row">{{ $post->id }}</th>
+                <th scope="row"> {{ $post->id }} </th>
                 <td>{{ $post->title }}</td>
                 <td>
                     <a href="{{route('admin.posts.show',  $post->id)}}" class="btn btn-primary">Show</a>
