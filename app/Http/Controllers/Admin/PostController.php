@@ -96,11 +96,11 @@ class PostController extends Controller
         $data = $request->all();
         if($data['title'] != $data->title){
 
-            $slug = Str::slug($data['title'], '-'); //titolo-d'esempio
+            $slug = Str::slug($data['title'],'-'); //titolo-d'esempio
 
 
-            $slug_base = $data['slug'];//titolo-d'esempio
-            $slug_presente = Post::where('slug', $data['slug'])->first();
+            $slug_base = $slug['slug'];//titolo-d'esempio
+            $slug_presente = Post::where('slug', $slug['slug'])->first();
 
             $contatore = 1;
             while($slug_presente){
