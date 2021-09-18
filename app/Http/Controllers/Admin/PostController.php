@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
-use App\post;
+use App\Post;
 
 class PostController extends Controller
 {
@@ -37,20 +37,46 @@ class PostController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
-    {   
+    {
+        //validazione dei dati
+        $request->validate([
+            'title' => 'required|max:60',
+            'content' => 'required'
+        ]);
+
         //prendere i dati
         $data = $request->all();
 
-        //creare la nuova istanza con dati presi dalla request
+        //creare la nuova istanza con i dati ottenuti dalla request
         $new_post = new Post();
-        $new_post->slug = Str::slug($data['title'], '-');
+
+        $slug = Str::slug($data['title'],'-');
+
+        //******* se c'è un duplicato */
+        $slug_base = $slug;
+
+        $slug_presente = Post::where('slug', $slug)->first();
+
+        $contatore = 1;
+        while($slug_presente){
+            $slug = $slug_base . '-' .$contatore;
+
+            $slug_presente = Post::where('slug', $slug)->first();
+
+            $contatore++;
+        }
+
+        //***** end se c'è un duplicato */
+
+
+        $new_post->slug =  $slug;
+
         $new_post->fill($data);
 
-        // e poi salvare i dati
+        //salvare i dati
         $new_post->save();
 
         return redirect()->route('admin.posts.index');
-
     }
 
     /**
@@ -59,15 +85,14 @@ class PostController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    
-     //collegare id
-    public function show($slug)
-    {   
-        $post = Post::where('slug', $slug)->first();
+
+     //collegamento con lo slug 
+     public function show($slug)
+    {
+        $post = Post::where('slug',$slug)->first();
         return view('admin.posts.show', compact('post'));
     }
-    //collegare id
-
+    //collegamento con id
     // public function show(Post $post)
     // {
     //     return view('admin.posts.show', compact('post'));
@@ -81,7 +106,7 @@ class PostController extends Controller
      */
     public function edit(Post $post)
     {
-        return view('admin.post.edit', compact('post'));
+        return view('admin.posts.edit', compact('post'));
     }
 
     /**
@@ -93,37 +118,38 @@ class PostController extends Controller
      */
     public function update(Request $request, Post $post)
     {
+        $request->validate([
+            'title' => 'required|max:60',
+            'content' => 'required'
+        ]);
         $data = $request->all();
-        if($data['title'] != $data->title){
+        if($data['title'] != $post->title){
 
-            $slug = Str::slug($data['title'],'-'); //titolo-d'esempio
-
-
-            $slug_base = $slug['slug'];//titolo-d'esempio
-            $slug_presente = Post::where('slug', $slug['slug'])->first();
+            $slug = Str::slug($data['title'],'-'); 
+            
+            //se lo slug c'è gia identico 
+            $slug_base = $slug; 
+            $slug_presente = Post::where('slug', $slug)->first();
 
             $contatore = 1;
             while($slug_presente){
-
-                $slug = $slug_base . '-' . $contatore;
-
-                //controllo se il post esiste ancora
+                //aggiungiamo al post di prima il -contatore
+                $slug = $slug_base . '-' . $contatore; 
+                //controlliamo se il post esiste ancora
                 $slug_presente = Post::where('slug', $slug)->first();
-
-                //incremento contatore
+                //incrementiamo il contatore
                 $contatore++;
             }
 
+            //assegniamo allo slug il valore ottenuto
             $data['slug'] = $slug;
-
-            
-
-
-        }
+        } 
         
-        $post->updae($data);
+        
 
-        return redirect()->route('admin.post.index')->with('udated', 'Modifica corretta' . $post->id);
+        $post->update($data);
+
+        return redirect()->route('admin.posts.index')->with('updated', 'Hai modificato con successo l\'elemento' .$post->id);
     }
 
     /**
@@ -132,8 +158,9 @@ class PostController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(Post $post)
     {
-        //
+        $post->delete();
+        return redirect()->route('admin.posts.index');
     }
 }
