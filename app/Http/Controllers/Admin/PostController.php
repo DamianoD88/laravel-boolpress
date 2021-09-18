@@ -59,12 +59,15 @@ class PostController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    //collegare id
+    
+     //collegare id
     public function show($slug)
     {   
         $post = Post::where('slug', $slug)->first();
         return view('admin.posts.show', compact('post'));
     }
+    //collegare id
+
     // public function show(Post $post)
     // {
     //     return view('admin.posts.show', compact('post'));
@@ -76,9 +79,9 @@ class PostController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit($id)
+    public function edit(Post $post)
     {
-        //
+        return view('admin.post.edit', compact('post'));
     }
 
     /**
@@ -88,9 +91,39 @@ class PostController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, Post $post)
     {
-        //
+        $data = $request->all();
+        if($data['title'] != $data->title){
+
+            $slug = Str::slug($data['title'], '-'); //titolo-d'esempio
+
+
+            $slug_base = $data['slug'];//titolo-d'esempio
+            $slug_presente = Post::where('slug', $data['slug'])->first();
+
+            $contatore = 1;
+            while($slug_presente){
+
+                $slug = $slug_base . '-' . $contatore;
+
+                //controllo se il post esiste ancora
+                $slug_presente = Post::where('slug', $slug)->first();
+
+                //incremento contatore
+                $contatore++;
+            }
+
+            $data['slug'] = $slug;
+
+            
+
+
+        }
+        
+        $post->updae($data);
+
+        return redirect()->route('admin.post.index')->with('udated', 'Modifica corretta' . $post->id);
     }
 
     /**
